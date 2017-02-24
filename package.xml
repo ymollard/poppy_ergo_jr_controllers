@@ -7,6 +7,9 @@
   <license>GPL3</license>
   <url type="website">https://www.poppy-project.org/</url>
   <buildtool_depend>catkin</buildtool_depend>
+  <run_depend>poppy_msgs</run_depend>
+  <build_depend>poppy_msgs</build_depend>
+
   <export>
   </export>
 </package>
