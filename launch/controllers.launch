@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="robot" default="poppy_ergo_jr"/>
+    <arg name="simulated" default="false"/>
+
+    <group ns="$(arg robot)">
+        <param if="$(arg simulated)" name="simulated" value="vrep-noscene" />
+        <param unless="$(arg simulated)" name="simulated" value="none" />
+
+        <node pkg="poppy_ergo_jr_controllers" name="poppy_ergo_jr_controllers" type="controllers.py" output="screen"/>
+    </group>
+</launch>
