@@ -57,8 +57,9 @@ class ErgoJrControllers(object):
                 self.publish_js(self.ergo.motors, self.js_pub)
                 self.publish_rate.sleep()
         finally:
-            self.ergo.compliant = True
-            self.ergo.close()
+            if self.ergo is not None:
+                self.ergo.compliant = True
+                self.ergo.close()
 
     @staticmethod
     def publish_eef(eef_pose, publisher):
