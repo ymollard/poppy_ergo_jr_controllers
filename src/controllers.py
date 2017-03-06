@@ -53,32 +53,31 @@ class ErgoJrControllers(object):
             rospy.loginfo("{} controllers are up!".format(self.robot_name))
 
             while not rospy.is_shutdown():
-                self.publish_eef(self.ergo.l_arm_chain.end_effector, self.eef_pub)
-                self.publish_js(self.ergo.motors, self.js_pub)
+                self.publish_eef(self.ergo.chain.end_effector)
+                self.publish_js()
                 self.publish_rate.sleep()
         finally:
             if self.ergo is not None:
                 self.ergo.compliant = True
                 self.ergo.close()
 
-    @staticmethod
-    def publish_eef(eef_pose, publisher):
+    def publish_eef(self, eef_pose):
         pose = PoseStamped()
         pose.header.stamp = rospy.Time.now()
         pose.header.frame_id = 'ergo_jr_base'
         pose.pose.position.x = eef_pose[0]
         pose.pose.position.y = eef_pose[1]
         pose.pose.position.z = eef_pose[2]
-        publisher.publish(pose)
+        self.eef_pub.publish(pose)
 
-    def publish_js(self, arm, publisher):
+    def publish_js(self):
         js = JointState()
         js.header.stamp = rospy.Time.now()
-        js.name = [m.name for m in arm]
-        js.position = [m.present_position for m in arm]
-        js.velocity = [m.present_speed for m in arm]
-        js.effort = [m.present_load for m in arm]
-        publisher.publish(js)
+        js.name = [m.name for m in self.ergo.motors]
+        js.position = [m.present_position for m in self.ergo.motors]
+        js.velocity = [m.present_speed for m in self.ergo.motors]
+        js.effort = [m.present_load for m in self.ergo.motors]
+        self.js_pub.publish(js)
 
     def _cb_execute(self, request):
         # TODO Action server
