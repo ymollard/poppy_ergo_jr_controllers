@@ -7,7 +7,7 @@ import rospy
 
 from poppy.creatures import PoppyErgoJr
 
-from poppy_msgs.srv import ExecuteTrajectory, SetCompliant, ExecuteTrajectoryResponse, SetCompliantResponse
+from poppy_msgs.srv import ExecuteTrajectory, SetCompliant, ExecuteTrajectoryResponse, SetCompliantResponse, ReachTarget, ReachTargetResponse
 from geometry_msgs.msg import PoseStamped
 from sensor_msgs.msg import JointState
 
@@ -28,6 +28,7 @@ class ErgoJrControllers(object):
         self.js_pub = rospy.Publisher('joint_state', JointState, queue_size=1)
 
         # Services
+        self.srv_robot_target = None
         self.srv_robot_execute = None
         self.srv_robot_set_compliant = None
 
@@ -47,7 +48,7 @@ class ErgoJrControllers(object):
 
             ########################## Setting up services
             self.srv_robot_execute = rospy.Service('execute', ExecuteTrajectory, self._cb_execute)
-
+            self.srv_robot_target = rospy.Service('reach', ReachTarget, self._cb_reach)
             self.srv_robot_set_compliant = rospy.Service('set_compliant', SetCompliant, self._cb_set_compliant)
 
             rospy.loginfo("{} controllers are up!".format(self.robot_name))
@@ -85,6 +86,13 @@ class ErgoJrControllers(object):
         thread.daemon = True
         thread.start()
         return ExecuteTrajectoryResponse()
+
+    def _cb_reach(self, request):
+        target = dict(zip(request.target.name, request.target.position))
+        with self.robot_lock:
+            rospy.loginfo("Reaching non-blocking target...")
+            self.ergo.goto_position(target, request.duration.to_sec())
+        return ReachTargetResponse()
 
     def execute(self, trajectory):
         with self.robot_lock:
