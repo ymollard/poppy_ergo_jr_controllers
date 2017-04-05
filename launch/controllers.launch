@@ -2,10 +2,12 @@
 <launch>
     <arg name="robot" default="poppy_ergo_jr"/>
     <arg name="simulated" default="false"/>
+    <arg name="vrep_port" default="19997"/>  <!-- Make sure you open N different ports in VRep file remoteApiConnections.txt if you need N nodes -->
 
     <group ns="$(arg robot)">
-        <param if="$(arg simulated)" name="simulated" value="vrep-noscene" />
-        <param unless="$(arg simulated)" name="simulated" value="none" />
+        <param if="$(arg simulated)" name="simulator" value="vrep" />
+        <param unless="$(arg simulated)" name="simulator" value="none" />
+        <param if="$(arg simulated)" name="vrep/port" value="none" />
 
         <node pkg="poppy_ergo_jr_controllers" name="poppy_ergo_jr_controllers" type="controllers.py" output="screen"/>
     </group>

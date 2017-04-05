@@ -36,10 +36,10 @@ class ErgoJrControllers(object):
         self.ergo = None
         self.robot_lock = RLock()
 
-    def run(self, simulated=None):
+    def run(self, simulator=None):
         rospy.loginfo("Controller is connecting to {}...".format(self.robot_name))
         try:
-            self.ergo = PoppyErgoJr(use_http=True, simulator=simulated)
+            self.ergo = PoppyErgoJr(use_http=True, simulator=simulator, scene="keep-existing", port=19997)
         except IOError as e:
             rospy.logerr("{} failed to init: {}".format(self.robot_name, e))
             return None
@@ -125,7 +125,7 @@ class ErgoJrControllers(object):
 
 if __name__ == '__main__':
     rospy.init_node("poppy_ergo_jr_controllers")
-    simulated = rospy.get_param("simulated", None)
-    if simulated == "none":
-        simulated = None
-    ErgoJrControllers(rospy.get_namespace().strip('/')).run(simulated=simulated)
+    simulator = rospy.get_param("simulator", None)
+    if simulator == "none":
+        simulator = None
+    ErgoJrControllers(rospy.get_namespace().strip('/')).run(simulator=simulator)
