@@ -7,7 +7,7 @@
     <group ns="$(arg robot)">
         <param if="$(arg simulated)" name="simulator" value="vrep" />
         <param unless="$(arg simulated)" name="simulator" value="none" />
-        <param if="$(arg simulated)" name="vrep/port" value="none" />
+        <param if="$(arg simulated)" name="vrep/port" value="$(arg vrep_port)" />
 
         <node pkg="poppy_ergo_jr_controllers" name="poppy_ergo_jr_controllers" type="controllers.py" output="screen"/>
     </group>
