@@ -26,6 +26,7 @@ class ErgoJrControllers(object):
 
         self.eef_pub = rospy.Publisher('end_effector_pose', PoseStamped, queue_size=1)
         self.js_pub = rospy.Publisher('joint_state', JointState, queue_size=1)
+        self.goal_pub = rospy.Publisher('joint_goals', JointState, queue_size=1)
 
         # Services
         self.srv_robot_target = None
@@ -55,6 +56,7 @@ class ErgoJrControllers(object):
             rospy.loginfo("{} controllers are up!".format(self.robot_name))
 
             while not rospy.is_shutdown():
+                self.publish_goals()
                 self.publish_eef(self.ergo.chain.end_effector)
                 self.publish_js()
                 self.publish_rate.sleep()
@@ -80,6 +82,14 @@ class ErgoJrControllers(object):
         js.velocity = [m.present_speed for m in self.ergo.motors]
         js.effort = [m.present_load for m in self.ergo.motors]
         self.js_pub.publish(js)
+
+    def publish_goals(self):
+        js = JointState()
+        js.header.stamp = rospy.Time.now()
+        js.name = [m.name for m in self.ergo.motors]
+        js.position = [m.goal_position for m in self.ergo.motors]
+        js.velocity = [m.goal_speed for m in self.ergo.motors]
+        self.goal_pub.publish(js)
 
     def _cb_execute(self, request):
         # TODO Action server
