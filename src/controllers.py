@@ -46,6 +46,7 @@ class ErgoJrControllers(object):
             rospy.logerr("{} failed to init: {}".format(self.robot_name, e))
             return None
         else:
+            self.ergo.power_up()
             self.ergo.compliant = False
 
             ########################## Setting up services
@@ -100,9 +101,25 @@ class ErgoJrControllers(object):
 
     def _cb_reach(self, request):
         target = dict(zip(request.target.name, request.target.position))
+        duration = request.duration.to_sec()
+        if duration <= 0.:
+            rospy.loginfo("Teleporting {}...".format(str(target)))
+        else:
+            rospy.loginfo("Reaching {} in {} sec...".format(str(target), duration))
+
         with self.robot_lock:
-            rospy.loginfo("Reaching non-blocking target...")
-            self.ergo.goto_position(target, request.duration.to_sec())
+            if duration <= 0.:
+                # Duration = 0 teleports the joint or goes at full speed
+                for motor in request.target.name:
+                    try:
+                        index = ['m1', 'm2', 'm3', 'm4', 'm5', 'm6'].index(motor)
+                    except ValueError:
+                        pass
+                    else:
+                        self.ergo.motors[index].goal_position = target[motor]
+            else:
+                # Other durations will trigger a threaded control
+                self.ergo.goto_position(target, request.duration.to_sec())
         return ReachTargetResponse()
 
     def execute(self, trajectory):
