@@ -63,7 +63,6 @@ class ErgoJrControllers(object):
                 self.publish_rate.sleep()
         finally:
             if self.ergo is not None:
-                self.ergo.compliant = True
                 self.ergo.close()
 
     def publish_eef(self, eef_pose):
