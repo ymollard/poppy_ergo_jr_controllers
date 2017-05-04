@@ -5,7 +5,7 @@ from threading import Thread, RLock
 import json
 import rospy
 
-from poppy.creatures import PoppyErgoJr
+from pypot.creatures import PoppyErgoJr
 
 from poppy_msgs.srv import ExecuteTrajectory, SetCompliant, ExecuteTrajectoryResponse, SetCompliantResponse, ReachTarget, ReachTargetResponse
 from geometry_msgs.msg import PoseStamped
