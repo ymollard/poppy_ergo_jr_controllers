@@ -36,7 +36,12 @@ class ErgoJrControllers(object):
         # Protected resources
         self.ergo = None
         self.robot_lock = RLock()
-
+    
+    def reset_max_speed(self):
+        # Reseting max speed to 100%
+        for m in self.ergo.motors:
+            m.moving_speed = 100
+    
     def run(self, simulator=None):
         rospy.loginfo("Controller is connecting to {}...".format(self.robot_name))
         port = rospy.get_param('vrep/port', 19997)
@@ -48,7 +53,7 @@ class ErgoJrControllers(object):
         else:
             self.ergo.power_up()
             self.ergo.compliant = False
-
+            self.reset_max_speed()
             ########################## Setting up services
             self.srv_robot_execute = rospy.Service('execute', ExecuteTrajectory, self._cb_execute)
             self.srv_robot_target = rospy.Service('reach', ReachTarget, self._cb_reach)
@@ -119,6 +124,8 @@ class ErgoJrControllers(object):
             else:
                 # Other durations will trigger a threaded control
                 self.ergo.goto_position(target, request.duration.to_sec())
+                self.reset_max_speed()
+
         return ReachTargetResponse()
 
     def execute(self, trajectory):
