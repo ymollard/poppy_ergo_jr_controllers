@@ -5,8 +5,12 @@
     <arg name="vrep_port" default="19997"/>  <!-- Make sure you open N different ports in VRep file remoteApiConnections.txt if you need N nodes -->
     <arg name="output" default="screen"/>
     <arg name="respawn" default="false"/>
+    <arg name="robot_description_file" default="$(find poppy_ergo_jr_controllers)/config/poppy_ergo_jr.json"/> <!-- Path to the JSON describing the robot in Pypot -->
 
     <group ns="$(arg robot)">
+        <rosparam command="load" file="$(arg robot_description_file)" param="description" />
+        <param name="description_file" value="$(arg robot_description_file)" />
+      
         <param if="$(arg simulated)" name="simulator" value="vrep" />
         <param unless="$(arg simulated)" name="simulator" value="none" />
         <param if="$(arg simulated)" name="vrep/port" value="$(arg vrep_port)" />

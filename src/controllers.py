@@ -2,6 +2,7 @@
 from os.path import join
 from rospkg import RosPack
 from threading import Thread, RLock
+from sys import exit
 import json
 import rospy
 
@@ -46,10 +47,16 @@ class ErgoJrControllers(object):
         rospy.loginfo("Controller is connecting to {}...".format(self.robot_name))
         port = rospy.get_param('vrep/port', 19997)
         try:
-            self.ergo = PoppyErgoJr(use_http=True, simulator=simulator, scene="keep-existing", port=port)
+            config = rospy.get_param('description')
+            config_file = rospy.get_param('description_file') 
+        except KeyError:
+            rospy.logerr("Expected robot description in parameter 'description' and file path in 'description_file', please use the launch file to load them")
+            exit(-1)
+        try:
+            self.ergo = PoppyErgoJr(config=config_file, use_http=True, simulator=simulator, scene="keep-existing", port=port)
         except IOError as e:
             rospy.logerr("{} failed to init: {}".format(self.robot_name, e))
-            return None
+            exit(-1)
         else:
             self.ergo.power_up()
             self.ergo.compliant = False
